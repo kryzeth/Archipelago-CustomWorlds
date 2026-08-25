@@ -33,8 +33,14 @@ class StartingPosition(Choice):
     option_dangerous = 2
     option_very_dangerous = 3
 
+
+class FastText(DefaultOnToggle):
+    """Speeds up NPC text display."""
+    display_name = "Fast Text"
+
 @dataclass
 class TlozOptions(PerGameCommonOptions):
     ExpandedPool: ExpandedPool
     TriforceLocations: TriforceLocations
     StartingPosition: StartingPosition
+    FastText: FastText
