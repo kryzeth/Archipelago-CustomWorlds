@@ -18,6 +18,7 @@ take_any = bit_positions[2]
 first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
 fast_text_delay = 0x04864
+low_health_beep = 0x1ED39
 game_mode = 0x12
 sword = 0x0657
 bombs = 0x0658

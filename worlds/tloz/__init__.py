@@ -15,7 +15,8 @@ from .Locations import location_table, level_locations, major_locations, shop_lo
     standard_level_locations, shop_price_location_ids, secret_money_ids, location_ids, food_locations, \
     take_any_locations, sword_cave_locations
 from .Options import TlozOptions
-from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, fast_text_delay
+from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
+    fast_text_delay, low_health_beep
 from .Rules import set_rules
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
@@ -230,6 +231,14 @@ class TLoZWorld(World):
                     f"{rom_data[fast_text_delay]:#04x}"
                 )
             rom_data[fast_text_delay] = 0x04
+        # Zelda Redux: disable the low-health warning beep.
+        if self.options.RemoveLowHealthBeep:
+            if rom_data[low_health_beep] != 0x40:
+                raise RuntimeError(
+                    f"Unexpected TLoZ low-health beep byte at {low_health_beep:#06x}: "
+                    f"{rom_data[low_health_beep]:#04x}"
+                )
+            rom_data[low_health_beep] = 0x00
         return rom_data
 
     def apply_randomizer(self):
