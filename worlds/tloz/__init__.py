@@ -16,7 +16,7 @@ from .Locations import location_table, level_locations, major_locations, shop_lo
     take_any_locations, sword_cave_locations
 from .Options import TlozOptions
 from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
-    fast_text_delay, low_health_beep
+    fast_text_delay, low_health_beep, apply_alttp_sword_swing
 from .Rules import set_rules
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
@@ -239,6 +239,9 @@ class TLoZWorld(World):
                     f"{rom_data[low_health_beep]:#04x}"
                 )
             rom_data[low_health_beep] = 0x00
+        # Zelda Redux: full ALttP-style sword swing.
+        if self.options.ALttPSwordSwing:
+            apply_alttp_sword_swing(rom_data)
         return rom_data
 
     def apply_randomizer(self):

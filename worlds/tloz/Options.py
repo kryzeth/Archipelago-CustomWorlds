@@ -1,12 +1,11 @@
 import typing
 from dataclasses import dataclass
-from Options import Option, DefaultOnToggle, Choice, PerGameCommonOptions
+from Options import Option, Toggle, DefaultOnToggle, Choice, PerGameCommonOptions
 
 
 class ExpandedPool(DefaultOnToggle):
     """Puts room clear drops and take any caves into the pool of items and locations."""
     display_name = "Expanded Item Pool"
-
 
 class TriforceLocations(Choice):
     """Where Triforce fragments can be located. Note that Triforce pieces
@@ -16,7 +15,6 @@ class TriforceLocations(Choice):
     option_vanilla = 0
     option_dungeons = 1
     option_anywhere = 2
-
 
 class StartingPosition(Choice):
     """How easy is the start of the game.
@@ -33,15 +31,17 @@ class StartingPosition(Choice):
     option_dangerous = 2
     option_very_dangerous = 3
 
-
 class FastText(DefaultOnToggle):
     """Speeds up NPC text display."""
     display_name = "Fast Text"
 
-
 class RemoveLowHealthBeep(DefaultOnToggle):
     """Removes the low-health warning beep."""
     display_name = "Remove Low Health Beep"
+
+class ALttPSwordSwing(Toggle):
+    """Reworks the sword attack into a full ALttP-style sweeping arc."""
+    display_name = "ALttP Sword Swing"
 
 @dataclass
 class TlozOptions(PerGameCommonOptions):
@@ -50,3 +50,4 @@ class TlozOptions(PerGameCommonOptions):
     StartingPosition: StartingPosition
     FastText: FastText
     RemoveLowHealthBeep: RemoveLowHealthBeep
+    ALttPSwordSwing: ALttPSwordSwing
