@@ -39,6 +39,11 @@ class RemoveLowHealthBeep(DefaultOnToggle):
     """Removes the low-health warning beep."""
     display_name = "Remove Low Health Beep"
 
+class ManualSave(DefaultOnToggle):
+    """Allows saving from the pause screen with Up+A.
+    Reloading preserves the saved heart count, with a minimum of three hearts."""
+    display_name = "Manual Save"
+
 class ALttPSwordSwing(Toggle):
     """Reworks the sword attack into a full ALttP-style sweeping arc."""
     display_name = "ALttP Sword Swing"
@@ -50,4 +55,5 @@ class TlozOptions(PerGameCommonOptions):
     StartingPosition: StartingPosition
     FastText: FastText
     RemoveLowHealthBeep: RemoveLowHealthBeep
+    ManualSave: ManualSave
     ALttPSwordSwing: ALttPSwordSwing
