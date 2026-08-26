@@ -31,6 +31,8 @@ manual_save_inventory_ppu = 0x1A326
 manual_save_box_buffers = 0x1A333
 manual_save_map_attrs = 0x1A398
 manual_save_text_code = 0x1AF80
+full_health_after_load_hook = 0x0A645
+full_health_after_load_code = 0x0A840
 alttp_sword_sprite_table = 0x071BB
 alttp_sword_swing_code = 0x1BD10
 alttp_sword_draw_hook = 0x1F7C6
@@ -291,6 +293,62 @@ def apply_manual_save(rom_data: bytearray) -> None:
         manual_save_text_code:
         manual_save_text_code + len(save_text_code)
     ] = save_text_code
+
+def apply_full_health_after_load(rom_data: bytearray) -> None:
+    """Apply Redux-style full health when loading a save file."""
+
+    hook_expected = bytes.fromhex(
+        "4C A1 EB"
+    )
+    hook_patched = bytes.fromhex(
+        "4C 30 A8"
+    )
+
+    code = bytes.fromhex(
+        "AD 6F 06 "
+        "29 F0 "
+        "8D 6F 06 "
+        "4A 4A 4A 4A "
+        "6D 6F 06 "
+        "8D 6F 06 "
+        "4C A1 EB"
+    )
+
+    hook_actual = bytes(
+        rom_data[
+            full_health_after_load_hook:
+            full_health_after_load_hook + len(hook_expected)
+        ]
+    )
+    code_actual = bytes(
+        rom_data[
+            full_health_after_load_code:
+            full_health_after_load_code + len(code)
+        ]
+    )
+
+    # Validate everything before modifying the ROM.
+    if hook_actual != hook_expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ full-health load hook at "
+            f"{full_health_after_load_hook:#06x}: {hook_actual.hex(' ')}"
+        )
+
+    if code_actual != bytes([0xFF]) * len(code):
+        raise RuntimeError(
+            f"Unexpected data in TLoZ full-health load code area at "
+            f"{full_health_after_load_code:#06x}"
+        )
+
+    rom_data[
+        full_health_after_load_hook:
+        full_health_after_load_hook + len(hook_patched)
+    ] = hook_patched
+
+    rom_data[
+        full_health_after_load_code:
+        full_health_after_load_code + len(code)
+    ] = code
 
 def apply_alttp_sword_swing(rom_data: bytearray) -> None:
     """Apply the ALttP-style sword swing from Zelda Redux."""

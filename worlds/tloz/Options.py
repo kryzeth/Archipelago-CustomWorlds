@@ -44,6 +44,10 @@ class ManualSave(DefaultOnToggle):
     Reloading preserves the saved heart count, with a minimum of three hearts."""
     display_name = "Manual Save"
 
+class FullHealthAfterLoad(Toggle):
+    """Starts the player at full health whenever a save file is loaded."""
+    display_name = "Full Health After Load"
+
 class ALttPSwordSwing(Toggle):
     """Reworks the sword attack into a full ALttP-style sweeping arc."""
     display_name = "ALttP Sword Swing"
@@ -57,3 +61,4 @@ class TlozOptions(PerGameCommonOptions):
     RemoveLowHealthBeep: RemoveLowHealthBeep
     ManualSave: ManualSave
     ALttPSwordSwing: ALttPSwordSwing
+    FullHealthAfterLoad: FullHealthAfterLoad
