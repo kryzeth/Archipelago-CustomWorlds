@@ -48,6 +48,10 @@ class FullHealthAfterLoad(Toggle):
     """Starts the player at full health whenever a save file is loaded."""
     display_name = "Full Health After Load"
 
+class FullHealthAfterDeath(Toggle):
+    """Starts the player at full health after continuing or retrying from a Game Over."""
+    display_name = "Full Health After Death"
+
 class ALttPSwordSwing(Toggle):
     """Reworks the sword attack into a full ALttP-style sweeping arc."""
     display_name = "ALttP Sword Swing"
@@ -60,5 +64,6 @@ class TlozOptions(PerGameCommonOptions):
     FastText: FastText
     RemoveLowHealthBeep: RemoveLowHealthBeep
     ManualSave: ManualSave
-    ALttPSwordSwing: ALttPSwordSwing
     FullHealthAfterLoad: FullHealthAfterLoad
+    FullHealthAfterDeath: FullHealthAfterDeath
+    ALttPSwordSwing: ALttPSwordSwing

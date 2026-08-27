@@ -33,6 +33,12 @@ manual_save_map_attrs = 0x1A398
 manual_save_text_code = 0x1AF80
 full_health_after_load_hook = 0x0A645
 full_health_after_load_code = 0x0A840
+full_health_after_death_mode8_hook = 0x14B8C
+full_health_after_death_transition_hook = 0x14D77
+full_health_after_death_marker_code = 0x145F4
+full_health_after_death_refill_code = 0x15362
+full_health_after_death_load_hook = 0x0A61E
+full_health_after_death_load_code = 0x0AFA0
 alttp_sword_sprite_table = 0x071BB
 alttp_sword_swing_code = 0x1BD10
 alttp_sword_draw_hook = 0x1F7C6
@@ -349,6 +355,199 @@ def apply_full_health_after_load(rom_data: bytearray) -> None:
         full_health_after_load_code:
         full_health_after_load_code + len(code)
     ] = code
+
+def apply_full_health_after_death(rom_data: bytearray) -> None:
+    """Refill health after continuing or retrying from a Game Over."""
+
+    mode8_expected = bytes.fromhex(
+        "20 A3 EB C0 02"
+    )
+    mode8_patched = bytes.fromhex(
+        "20 52 93 C0 02"
+    )
+
+    death_transition_expected = bytes.fromhex(
+        "20 A3 EB A9 08 85 12"
+    )
+    death_transition_patched = bytes.fromhex(
+        "20 E4 85 A9 08 85 12"
+    )
+
+    load_expected = bytes.fromhex(
+        "A9 00 "
+        "8D 2E 05 "
+        "85 AC "
+        "8D 6C 06"
+    )
+    load_patched = bytes.fromhex(
+        "20 90 AF "
+        "EA EA EA EA EA EA EA"
+    )
+
+    # Call the original EndGameMode first, then mark that Mode 8
+    # was reached through an actual death.
+    marker_code = bytes.fromhex(
+        "20 A3 EB "
+        "A9 01 "
+        "85 E5 "
+        "60"
+    )
+
+    # Mode 8 selections:
+    #   Y = 0: Continue -> refill immediately and clear marker.
+    #   Y = 1: Save     -> clear marker without refilling.
+    #   Y = 2: Retry    -> change marker to 2 so the refill can happen
+    #                     after the saved Items block is loaded again.
+    refill_code = bytes.fromhex(
+        "A5 E5 "
+        "F0 1E "
+        "C0 02 "
+        "F0 1E "
+        "A9 00 "
+        "85 E5 "
+        "C0 01 "
+        "F0 12 "
+        "AD 6F 06 "
+        "29 F0 "
+        "8D 6F 06 "
+        "4A 4A 4A 4A "
+        "0D 6F 06 "
+        "8D 6F 06 "
+        "20 A3 EB "
+        "60 "
+        "A9 02 "
+        "85 E5 "
+        "D0 F6"
+    )
+
+    # This replaces the normal post-file-load state reset. It performs
+    # the same reset first, then checks for the Retry marker. If present,
+    # the saved heart value has now been restored, so refill from its
+    # maximum-heart nibble and consume the marker.
+    load_code = bytes.fromhex(
+        "A9 00 "
+        "8D 2E 05 "
+        "85 AC "
+        "8D 6C 06 "
+        "A5 E5 "
+        "C9 02 "
+        "D0 16 "
+        "A9 00 "
+        "85 E5 "
+        "AD 6F 06 "
+        "29 F0 "
+        "8D 6F 06 "
+        "4A 4A 4A 4A "
+        "0D 6F 06 "
+        "8D 6F 06 "
+        "A9 00 "
+        "60"
+    )
+
+    mode8_actual = bytes(
+        rom_data[
+            full_health_after_death_mode8_hook:
+            full_health_after_death_mode8_hook + len(mode8_expected)
+        ]
+    )
+    death_transition_actual = bytes(
+        rom_data[
+            full_health_after_death_transition_hook:
+            full_health_after_death_transition_hook + len(death_transition_expected)
+        ]
+    )
+    marker_actual = bytes(
+        rom_data[
+            full_health_after_death_marker_code:
+            full_health_after_death_marker_code + len(marker_code)
+        ]
+    )
+    refill_actual = bytes(
+        rom_data[
+            full_health_after_death_refill_code:
+            full_health_after_death_refill_code + len(refill_code)
+        ]
+    )
+    load_actual = bytes(
+        rom_data[
+            full_health_after_death_load_hook:
+            full_health_after_death_load_hook + len(load_expected)
+        ]
+    )
+    load_code_actual = bytes(
+        rom_data[
+            full_health_after_death_load_code:
+            full_health_after_death_load_code + len(load_code)
+        ]
+    )
+
+    # Validate everything before modifying the ROM.
+    if mode8_actual != mode8_expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ Game Over Mode 8 hook at "
+            f"{full_health_after_death_mode8_hook:#06x}: {mode8_actual.hex(' ')}"
+        )
+
+    if death_transition_actual != death_transition_expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ death transition hook at "
+            f"{full_health_after_death_transition_hook:#06x}: "
+            f"{death_transition_actual.hex(' ')}"
+        )
+
+    if marker_actual != bytes([0xFF]) * len(marker_code):
+        raise RuntimeError(
+            f"Unexpected data in TLoZ death marker code area at "
+            f"{full_health_after_death_marker_code:#06x}"
+        )
+
+    if refill_actual != bytes([0xFF]) * len(refill_code):
+        raise RuntimeError(
+            f"Unexpected data in TLoZ death refill code area at "
+            f"{full_health_after_death_refill_code:#06x}"
+        )
+
+    if load_actual != load_expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ post-file-load hook at "
+            f"{full_health_after_death_load_hook:#06x}: {load_actual.hex(' ')}"
+        )
+
+    if load_code_actual != bytes([0xFF]) * len(load_code):
+        raise RuntimeError(
+            f"Unexpected data in TLoZ post-file-load code area at "
+            f"{full_health_after_death_load_code:#06x}"
+        )
+
+    rom_data[
+        full_health_after_death_mode8_hook:
+        full_health_after_death_mode8_hook + len(mode8_patched)
+    ] = mode8_patched
+
+    rom_data[
+        full_health_after_death_transition_hook:
+        full_health_after_death_transition_hook + len(death_transition_patched)
+    ] = death_transition_patched
+
+    rom_data[
+        full_health_after_death_marker_code:
+        full_health_after_death_marker_code + len(marker_code)
+    ] = marker_code
+
+    rom_data[
+        full_health_after_death_refill_code:
+        full_health_after_death_refill_code + len(refill_code)
+    ] = refill_code
+
+    rom_data[
+        full_health_after_death_load_hook:
+        full_health_after_death_load_hook + len(load_patched)
+    ] = load_patched
+
+    rom_data[
+        full_health_after_death_load_code:
+        full_health_after_death_load_code + len(load_code)
+    ] = load_code
 
 def apply_alttp_sword_swing(rom_data: bytearray) -> None:
     """Apply the ALttP-style sword swing from Zelda Redux."""
