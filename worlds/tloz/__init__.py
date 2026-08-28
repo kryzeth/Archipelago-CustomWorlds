@@ -17,7 +17,7 @@ from .Locations import location_table, level_locations, major_locations, shop_lo
 from .Options import TlozOptions
 from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
     fast_text_delay, low_health_beep, apply_manual_save, apply_full_health_after_load, apply_full_health_after_death, \
-    apply_alttp_sword_swing
+    apply_alttp_sword_swing, apply_cave_room_timer_fix
 from .Rules import set_rules
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
@@ -222,6 +222,8 @@ class TLoZWorld(World):
                 rom_data[first_quest_dungeon_items_late + i] = item
             if item & 0b00011111 == 0b00000011:
                 rom_data[first_quest_dungeon_items_late + i] = item | 0b00111111
+        # Zelda Redux: eliminate random cave-entry delays.
+        apply_cave_room_timer_fix(rom_data)
         # Zelda Redux: reduce NPC textbox delay from 6 frames to 4 frames.
         if self.options.FastText:
             if rom_data[fast_text_delay] != 0x06:

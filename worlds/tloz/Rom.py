@@ -17,6 +17,7 @@ ring_shop = bit_positions[7]
 take_any = bit_positions[2]
 first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
+cave_room_timer_fix = 0x046CE
 fast_text_delay = 0x04864
 low_health_beep = 0x1ED39
 manual_save_input = 0x140EA
@@ -70,6 +71,47 @@ boomerang = 0x0674
 magical_boomerang = 0x0675
 magical_shield = 0x0676
 rupees_to_add = 0x067D
+
+def apply_cave_room_timer_fix(rom_data: bytearray) -> None:
+    """Reset the cave room timer to eliminate random cave-entry delays."""
+
+    expected = bytes.fromhex(
+        "A9 00 "
+        "9D 85 04 "
+        "A9 81 "
+        "9D BF 04 "
+        "A9 40 "
+        "85 AC "
+        "A9 40 "
+        "8D 51 03 "
+        "8D 52 03"
+    )
+
+    patched = bytes.fromhex(
+        "A9 00 "
+        "9D 85 04 "
+        "85 29 "
+        "A9 81 "
+        "9D BF 04 "
+        "A9 40 "
+        "85 AC "
+        "8D 51 03 "
+        "8D 52 03"
+    )
+
+    actual = bytes(
+        rom_data[cave_room_timer_fix:cave_room_timer_fix + len(expected)]
+    )
+
+    if actual != expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ cave room timer code at "
+            f"{cave_room_timer_fix:#06x}: {actual.hex(' ')}"
+        )
+
+    rom_data[
+        cave_room_timer_fix:cave_room_timer_fix + len(patched)
+    ] = patched
 
 def apply_manual_save(rom_data: bytearray) -> None:
     """Apply Redux-style manual saving with saved-heart preservation."""
