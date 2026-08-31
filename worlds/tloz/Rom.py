@@ -19,6 +19,7 @@ first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
 cave_room_timer_fix = 0x046CE
 locked_door_phasing_fix = 0x15283
+candle_flame_invulnerability_fix = 0x1F90D
 fast_text_delay = 0x04864
 low_health_beep = 0x1ED39
 manual_save_input = 0x140EA
@@ -136,6 +137,30 @@ def apply_locked_door_phasing_fix(rom_data: bytearray) -> None:
     rom_data[
         locked_door_phasing_fix:
         locked_door_phasing_fix + len(patched)
+    ] = patched
+
+def apply_candle_flame_fix(rom_data: bytearray) -> None:
+    """Prevent Link from being hurt by his own candle or rod flame."""
+
+    expected = bytes.fromhex("A9 0E")
+    patched = bytes.fromhex("A9 00")
+
+    actual = bytes(
+        rom_data[
+            candle_flame_invulnerability_fix:
+            candle_flame_invulnerability_fix + len(expected)
+        ]
+    )
+
+    if actual != expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ candle flame hitbox code at "
+            f"{candle_flame_invulnerability_fix:#06x}: {actual.hex(' ')}"
+        )
+
+    rom_data[
+        candle_flame_invulnerability_fix:
+        candle_flame_invulnerability_fix + len(patched)
     ] = patched
 
 def apply_manual_save(rom_data: bytearray) -> None:
