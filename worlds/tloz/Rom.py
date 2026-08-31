@@ -18,6 +18,7 @@ take_any = bit_positions[2]
 first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
 cave_room_timer_fix = 0x046CE
+locked_door_phasing_fix = 0x15283
 fast_text_delay = 0x04864
 low_health_beep = 0x1ED39
 manual_save_input = 0x140EA
@@ -111,6 +112,30 @@ def apply_cave_room_timer_fix(rom_data: bytearray) -> None:
 
     rom_data[
         cave_room_timer_fix:cave_room_timer_fix + len(patched)
+    ] = patched
+
+def apply_locked_door_phasing_fix(rom_data: bytearray) -> None:
+    """Prevent phasing through locked doors while shutters are opening."""
+
+    expected = bytes.fromhex("D0 19")
+    patched = bytes.fromhex("D0 C0")
+
+    actual = bytes(
+        rom_data[
+            locked_door_phasing_fix:
+            locked_door_phasing_fix + len(expected)
+        ]
+    )
+
+    if actual != expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ locked-door branch at "
+            f"{locked_door_phasing_fix:#06x}: {actual.hex(' ')}"
+        )
+
+    rom_data[
+        locked_door_phasing_fix:
+        locked_door_phasing_fix + len(patched)
     ] = patched
 
 def apply_manual_save(rom_data: bytearray) -> None:
