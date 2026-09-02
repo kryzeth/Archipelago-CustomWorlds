@@ -836,6 +836,194 @@ def apply_alttp_sword_swing(rom_data: bytearray) -> None:
         alttp_sword_dungeon_beam_code + len(dungeon_beam_code)
     ] = dungeon_beam_code
 
+def apply_visible_secrets(rom_data: bytearray) -> None:
+    """Apply Redux-style visible bombable walls and burnable trees."""
+
+    patches = [
+        (
+            "graphics hook 1",
+            0x0c061,
+            bytes.fromhex("20 91 80"),
+            bytes.fromhex("20 E0 AB"),
+        ),
+        (
+            "graphics hook 2",
+            0x0c074,
+            bytes.fromhex("20 80 80"),
+            bytes.fromhex("20 E0 AB"),
+        ),
+        (
+            "graphics loader",
+            0x0ebf0,
+            bytes.fromhex(
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF"
+        ),
+            bytes.fromhex(
+            "A9 15 8D 06 20 A9 40 8D 06 20 A0 C0 A2 00 A5 10 "
+            "D0 0E BD 10 AC 8D 07 20 E8 88 D0 F6 20 91 80 60 "
+            "BD D0 AC 8D 07 20 E8 88 D0 F6 20 80 80 60"
+        ),
+        ),
+        (
+            "graphics assets",
+            0x0ec20,
+            bytes.fromhex(
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF"
+        ),
+            bytes.fromhex(
+            "E0 9C 80 C0 40 80 80 00 01 20 18 00 80 00 00 00 "
+            "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+            "8F 38 01 03 03 01 00 00 00 05 18 00 00 00 01 00 "
+            "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+            "E0 F9 F8 73 73 02 26 24 01 02 02 84 84 A4 48 49 "
+            "20 10 10 47 CF CF 87 67 45 20 86 88 10 10 08 00 "
+            "8C E4 70 38 3C 70 70 E4 01 01 80 40 40 84 85 09 "
+            "E6 46 02 08 9C 1C 8C 64 08 88 54 12 20 21 01 01 "
+            "00 05 17 1B 3F 3E 7F 6F FF FA E8 E0 C0 C8 80 82 "
+            "3F 7B 7F 4F 16 07 07 00 C0 90 80 A0 E8 FB F7 E0 "
+            "00 00 00 90 C0 A0 80 C0 FF 3F 0F 07 07 23 07 03 "
+            "48 C0 00 A0 00 80 C0 00 03 43 03 07 17 BF C0 03 "
+            "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+            "FF DF FF FD BF FF FB FF 00 00 00 00 00 00 00 00 "
+            "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+            "FF DF FF FD BF FF FB FF 00 00 00 00 00 00 00 00 "
+            "18 18 18 18 18 18 19 5E EF EF EF EF EF EF EE A9 "
+            "38 1C 1B 18 18 18 18 18 C7 EB EC EF EF EF EF EF "
+            "00 00 01 FF FF 02 04 04 FF FF FE 00 FE FD FB FB "
+            "04 04 02 FF FF 01 00 00 FB FB FD FE 00 FE FF FF "
+            "00 80 00 FF FF 80 80 40 FF 7F FF 00 FF 7F 7F BF "
+            "40 80 80 FF FF 00 80 00 BF 7F 7F FF 00 FF 7F FF "
+            "18 18 18 18 18 D8 38 1C F7 F7 F7 F7 F7 37 D7 E3 "
+            "7A 98 18 18 18 18 18 18 95 77 F7 F7 F7 F7 F7 F7"
+        ),
+        ),
+        (
+            "bombed wall graphic",
+            0x10f18,
+            bytes.fromhex("A9 24"),
+            bytes.fromhex("A9 54"),
+        ),
+        (
+            "collision helper",
+            0x13f10,
+            bytes.fromhex(
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF"
+        ),
+            bytes.fromhex(
+            "20 16 BF B0 03 4C 59 F1 4C 29 F1 20 16 BF B0 03 "
+            "4C 0B EF 4C EA EE 20 00 EE C9 54 90 04 C9 60 90 "
+            "04 CD 4A 03 60 38 60"
+        ),
+        ),
+        (
+            "dungeon right wall",
+            0x16022,
+            bytes.fromhex("DF DF DF DF F5 F5 DF DF DF DF F5 F5"),
+            bytes.fromhex("DF 5E DF DF F5 F5 5F DF DF DF F5 F5"),
+        ),
+        (
+            "dungeon left wall",
+            0x1605e,
+            bytes.fromhex("F5 F5 DE DE DE DE F5 F5 DE DE DE DE"),
+            bytes.fromhex("F5 F5 DE DE DE 58 F5 F5 DE DE 59 DE"),
+        ),
+        (
+            "dungeon bottom wall",
+            0x1609a,
+            bytes.fromhex("DD DD F5 DD DD F5 DD DD F5 DD DD F5"),
+            bytes.fromhex("DD DD F5 5B DD F5 5D DD F5 DD DD F5"),
+        ),
+        (
+            "dungeon top wall",
+            0x160d7,
+            bytes.fromhex("DC DC F5 DC DC F5 DC DC F5 DC DC F5"),
+            bytes.fromhex("DC DC F5 DC 5A F5 DC 5C F5 DC DC F5"),
+        ),
+        (
+            "secret lookup hook",
+            0x16ae0,
+            bytes.fromhex("BD 76 A9"),
+            bytes.fromhex("20 40 AC"),
+        ),
+        (
+            "bombed wall property",
+            0x16bfd,
+            bytes.fromhex("C9 27"),
+            bytes.fromhex("C9 57"),
+        ),
+        (
+            "alternate tile table",
+            0x16c40,
+            bytes.fromhex("FF FF FF FF FF FF"),
+            bytes.fromhex("C8 58 5C BC C0 C0"),
+        ),
+        (
+            "quest tile logic",
+            0x16c50,
+            bytes.fromhex(
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF "
+            "FF FF FF FF"
+        ),
+            bytes.fromhex(
+            "A4 EB B9 FE 6A 30 0E 0A 30 02 10 14 A4 16 B9 2D "
+            "06 F0 0D D0 07 A4 16 B9 2D 06 D0 04 BD 76 A9 60 "
+            "BD 30 AC 60"
+        ),
+        ),
+        (
+            "collision hook 1",
+            0x1ef13,
+            bytes.fromhex("20 00 EE CD 4A 03 B0 DF"),
+            bytes.fromhex("A9 04 20 AC FF 4C 0B BF"),
+        ),
+        (
+            "collision hook 2",
+            0x1f131,
+            bytes.fromhex("20 00 EE CD 4A 03 90 30"),
+            bytes.fromhex("A9 04 20 AC FF 4C 00 BF"),
+        ),
+    ]
+
+    # Validate every region before modifying any part of the ROM.
+    for name, offset, expected, _ in patches:
+        actual = bytes(rom_data[offset:offset + len(expected)])
+        if actual != expected:
+            raise RuntimeError(
+                f"Unexpected TLoZ Visible Secrets {name} at "
+                f"{offset:#06x}: {actual.hex(' ')}"
+            )
+
+    for _, offset, _, patched in patches:
+        rom_data[offset:offset + len(patched)] = patched
+
 class TLoZDeltaPatch(APDeltaPatch):
     hash = NA10CHECKSUM
     game = "The Legend of Zelda"

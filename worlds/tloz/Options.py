@@ -56,6 +56,10 @@ class ALttPSwordSwing(Toggle):
     """Reworks the sword attack into a full ALttP-style sweeping arc."""
     display_name = "ALttP Sword Swing"
 
+class VisibleSecrets(Toggle):
+    """Makes bombable walls and burnable trees visually identifiable."""
+    display_name = "Visible Secrets"
+
 @dataclass
 class TlozOptions(PerGameCommonOptions):
     ExpandedPool: ExpandedPool
@@ -67,3 +71,4 @@ class TlozOptions(PerGameCommonOptions):
     FullHealthAfterLoad: FullHealthAfterLoad
     FullHealthAfterDeath: FullHealthAfterDeath
     ALttPSwordSwing: ALttPSwordSwing
+    VisibleSecrets: VisibleSecrets
