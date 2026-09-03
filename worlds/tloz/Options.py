@@ -56,6 +56,10 @@ class ALttPSwordSwing(Toggle):
     """Reworks the sword attack into a full ALttP-style sweeping arc."""
     display_name = "ALttP Sword Swing"
 
+class NotLost(Toggle):
+    """Disables the directional sequence requirements in the Lost Woods and Lost Hills."""
+    display_name = "Not Lost"
+
 class VisibleSecrets(Toggle):
     """Makes bombable walls and burnable trees visually identifiable."""
     display_name = "Visible Secrets"
@@ -71,4 +75,5 @@ class TlozOptions(PerGameCommonOptions):
     FullHealthAfterLoad: FullHealthAfterLoad
     FullHealthAfterDeath: FullHealthAfterDeath
     ALttPSwordSwing: ALttPSwordSwing
+    NotLost: NotLost
     VisibleSecrets: VisibleSecrets

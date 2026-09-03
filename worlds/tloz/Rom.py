@@ -51,6 +51,8 @@ alttp_sword_position = 0x076B0
 alttp_sword_dungeon_weapon = 0x1F7DC
 alttp_sword_dungeon_beam_hook = 0x1F3B2
 alttp_sword_dungeon_beam_code = 0x1BE50
+lost_woods_check = 0x06E15
+lost_hills_check = 0x06E37
 game_mode = 0x12
 sword = 0x0657
 bombs = 0x0658
@@ -856,6 +858,41 @@ def apply_alttp_sword_swing(rom_data: bytearray) -> None:
         alttp_sword_dungeon_beam_code:
         alttp_sword_dungeon_beam_code + len(dungeon_beam_code)
     ] = dungeon_beam_code
+
+def apply_not_lost(rom_data: bytearray) -> None:
+    """Disable the Lost Woods and Lost Hills directional sequences."""
+
+    patches = [
+        (
+            "Lost Woods",
+            lost_woods_check,
+            bytes.fromhex("C0 61"),
+            bytes.fromhex("C0 FF"),
+        ),
+        (
+            "Lost Hills",
+            lost_hills_check,
+            bytes.fromhex("C0 1B"),
+            bytes.fromhex("C0 FF"),
+        ),
+    ]
+
+    actuals = [
+        (name, offset, expected, patched,
+         bytes(rom_data[offset:offset + len(expected)]))
+        for name, offset, expected, patched in patches
+    ]
+
+    # Validate both locations before modifying either one.
+    for name, offset, expected, _, actual in actuals:
+        if actual != expected:
+            raise RuntimeError(
+                f"Unexpected TLoZ {name} check at "
+                f"{offset:#06x}: {actual.hex(' ')}"
+            )
+
+    for _, offset, _, patched, _ in actuals:
+        rom_data[offset:offset + len(patched)] = patched
 
 def apply_visible_secrets(rom_data: bytearray) -> None:
     """Apply Redux-style visible bombable walls and burnable trees."""

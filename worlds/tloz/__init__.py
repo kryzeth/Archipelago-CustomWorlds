@@ -18,7 +18,7 @@ from .Options import TlozOptions
 from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
     fast_text_delay, low_health_beep, apply_manual_save, apply_full_health_after_load, apply_full_health_after_death, \
     apply_alttp_sword_swing, apply_cave_room_timer_fix, apply_locked_door_phasing_fix, apply_candle_flame_fix, \
-    apply_like_like_rupee_fix, apply_visible_secrets
+    apply_like_like_rupee_fix, apply_not_lost, apply_visible_secrets
 from .Rules import set_rules
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
@@ -259,6 +259,9 @@ class TLoZWorld(World):
         # Zelda Redux: full ALttP-style sword swing.
         if self.options.ALttPSwordSwing:
             apply_alttp_sword_swing(rom_data)
+        # Zelda Redux: disable the Lost Woods and Lost Hills directional sequences.
+        if self.options.NotLost:
+            apply_not_lost(rom_data)
         # Zelda Redux: make bombable walls and burnable trees visually identifiable.
         if self.options.VisibleSecrets:
             apply_visible_secrets(rom_data)
