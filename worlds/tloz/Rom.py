@@ -20,6 +20,7 @@ first_quest_dungeon_items_late = 0x18C10
 cave_room_timer_fix = 0x046CE
 locked_door_phasing_fix = 0x15283
 candle_flame_invulnerability_fix = 0x1F90D
+like_like_rupee_fix = 0x11D44
 fast_text_delay = 0x04864
 low_health_beep = 0x1ED39
 manual_save_input = 0x140EA
@@ -161,6 +162,26 @@ def apply_candle_flame_fix(rom_data: bytearray) -> None:
     rom_data[
         candle_flame_invulnerability_fix:
         candle_flame_invulnerability_fix + len(patched)
+    ] = patched
+
+def apply_like_like_rupee_fix(rom_data: bytearray) -> None:
+    """Make Like Likes consume rupees instead of removing the Magical Shield."""
+
+    expected = bytes.fromhex("A9 00 8D 76 06")
+    patched = bytes.fromhex("A9 01 8D 7E 06")
+
+    actual = bytes(
+        rom_data[like_like_rupee_fix:like_like_rupee_fix + len(expected)]
+    )
+
+    if actual != expected:
+        raise RuntimeError(
+            f"Unexpected TLoZ Like Like shield code at "
+            f"{like_like_rupee_fix:#06x}: {actual.hex(' ')}"
+        )
+
+    rom_data[
+        like_like_rupee_fix:like_like_rupee_fix + len(patched)
     ] = patched
 
 def apply_manual_save(rom_data: bytearray) -> None:
